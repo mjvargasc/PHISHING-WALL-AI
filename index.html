@@ -1,0 +1,1677 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="PhishingWall AI: demostración local para analizar phishing, identidad e imágenes con JavaScript dentro de un solo archivo.">
+  <title>PhishingWall AI - Demo local</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --panel-soft: #eef6f5;
+      --ink: #17202a;
+      --muted: #607080;
+      --line: #dbe4ed;
+      --brand: #0f766e;
+      --brand-dark: #0a4f4a;
+      --blue: #1d4ed8;
+      --green: #087443;
+      --yellow: #b7791f;
+      --red: #b42318;
+      --shadow: 0 18px 42px rgba(23, 32, 42, 0.12);
+      color-scheme: light;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background:
+        linear-gradient(180deg, rgba(15, 118, 110, 0.12), transparent 320px),
+        var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      touch-action: manipulation;
+    }
+
+    .shell {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+    }
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid rgba(219, 228, 237, 0.88);
+      background: rgba(245, 247, 251, 0.94);
+      backdrop-filter: blur(14px);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 16px 0;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 52px;
+      height: 52px;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 12px;
+      background: var(--brand);
+      box-shadow: 0 8px 18px rgba(15, 118, 110, 0.22);
+    }
+
+    .brand-mark svg {
+      width: 34px;
+      height: 34px;
+    }
+
+    .brand strong {
+      display: block;
+      font-size: 1.14rem;
+      line-height: 1.1;
+    }
+
+    .brand small {
+      display: block;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .nav a {
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 750;
+      padding: 8px 10px;
+      text-decoration: none;
+    }
+
+    .nav a:hover,
+    .nav a:focus-visible {
+      background: var(--panel-soft);
+      color: var(--brand-dark);
+      outline: none;
+    }
+
+    main {
+      padding: 28px 0 0;
+    }
+
+    .section {
+      scroll-margin-top: 96px;
+      padding: 28px 0;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.78fr) minmax(320px, 1.22fr);
+      gap: clamp(22px, 4vw, 44px);
+      align-items: start;
+      padding-top: 18px;
+    }
+
+    .hero-copy {
+      padding-top: 18px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--brand);
+      font-size: 0.76rem;
+      font-weight: 850;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 12ch;
+      margin-bottom: 14px;
+      overflow-wrap: anywhere;
+      font-size: clamp(2.8rem, 5vw, 4.8rem);
+      line-height: 0.94;
+      letter-spacing: 0;
+    }
+
+    .hero-copy p:last-child {
+      max-width: 58ch;
+      color: var(--muted);
+      font-size: 1.04rem;
+    }
+
+    .mode-pill,
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 100%;
+      border: 1px solid rgba(29, 78, 216, 0.22);
+      border-radius: 999px;
+      background: rgba(29, 78, 216, 0.08);
+      color: var(--blue);
+      padding: 8px 12px;
+      font-size: 0.82rem;
+      font-weight: 850;
+      text-align: center;
+    }
+
+    .panel,
+    .module-card,
+    .feature-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .panel {
+      padding: clamp(18px, 3vw, 28px);
+    }
+
+    .panel-heading,
+    .section-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .panel-heading h2,
+    .section-heading h2 {
+      margin-bottom: 0;
+      font-size: clamp(1.45rem, 2.4vw, 2.1rem);
+      line-height: 1.14;
+    }
+
+    .section-heading p {
+      max-width: 650px;
+      margin-bottom: 0;
+      color: var(--muted);
+    }
+
+    .home-grid,
+    .module-grid,
+    .example-grid,
+    .result-grid,
+    .flow-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .home-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .module-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+    }
+
+    .example-grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .result-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 14px;
+    }
+
+    .flow-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .feature-card,
+    .module-card {
+      padding: 18px;
+    }
+
+    .feature-card {
+      display: grid;
+      gap: 12px;
+      min-height: 230px;
+    }
+
+    .feature-card h3,
+    .module-card h3 {
+      margin-bottom: 6px;
+      font-size: 1.15rem;
+    }
+
+    .feature-card p,
+    .module-card p {
+      color: var(--muted);
+    }
+
+    .button-row,
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 10px 14px;
+      font-weight: 850;
+      text-align: center;
+      text-decoration: none;
+      transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+    }
+
+    .button:focus-visible {
+      outline: 3px solid rgba(29, 78, 216, 0.28);
+      outline-offset: 2px;
+    }
+
+    .primary {
+      background: var(--brand);
+      color: #ffffff;
+    }
+
+    .primary:hover {
+      background: var(--brand-dark);
+    }
+
+    .ghost {
+      border-color: var(--line);
+      background: #ffffff;
+      color: var(--ink);
+    }
+
+    .soft {
+      border-color: rgba(29, 78, 216, 0.22);
+      background: rgba(29, 78, 216, 0.08);
+      color: var(--blue);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 850;
+    }
+
+    textarea,
+    input[type="text"],
+    input[type="file"] {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdff;
+      color: var(--ink);
+      outline: none;
+      padding: 13px 14px;
+    }
+
+    textarea {
+      min-height: 210px;
+      resize: vertical;
+    }
+
+    textarea:focus,
+    input:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.18);
+    }
+
+    .score-badge {
+      flex: 0 0 auto;
+      min-width: 132px;
+      max-width: 210px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #eef6f5;
+      color: var(--brand-dark);
+      padding: 8px 11px;
+      font-size: 0.84rem;
+      font-weight: 850;
+      text-align: center;
+    }
+
+    .example-card {
+      min-height: 118px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--ink);
+      cursor: pointer;
+      padding: 14px;
+      text-align: left;
+      transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+    }
+
+    .example-card:hover,
+    .example-card:focus-visible {
+      border-color: var(--brand);
+      box-shadow: 0 12px 28px rgba(23, 32, 42, 0.12);
+      outline: none;
+      transform: translateY(-1px);
+    }
+
+    .example-card strong {
+      display: block;
+      line-height: 1.25;
+    }
+
+    .example-card span {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.34;
+    }
+
+    .results {
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdff;
+      padding: 16px;
+      min-height: 120px;
+    }
+
+    .risk-card {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 14px;
+      border-left: 6px solid var(--brand);
+      border-radius: 8px;
+      background: #eef6f5;
+      padding: 14px;
+    }
+
+    .risk-card h3 {
+      margin-bottom: 0;
+      font-size: 1.12rem;
+    }
+
+    .risk-low {
+      border-left-color: var(--green);
+      background: rgba(8, 116, 67, 0.08);
+    }
+
+    .risk-medium {
+      border-left-color: var(--yellow);
+      background: rgba(183, 121, 31, 0.1);
+    }
+
+    .risk-high {
+      border-left-color: var(--red);
+      background: rgba(180, 35, 24, 0.08);
+    }
+
+    .level-low {
+      color: var(--green);
+    }
+
+    .level-medium {
+      color: var(--yellow);
+    }
+
+    .level-high {
+      color: var(--red);
+    }
+
+    .risk-meter {
+      width: 100%;
+      height: 12px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(96, 112, 128, 0.2);
+    }
+
+    .risk-meter span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: currentColor;
+    }
+
+    .result-block {
+      min-width: 0;
+    }
+
+    .result-block h4 {
+      margin: 0 0 9px;
+      font-size: 0.92rem;
+    }
+
+    .list,
+    .check-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .list li,
+    .check-list li {
+      border-left: 4px solid var(--brand);
+      border-radius: 6px;
+      background: #eef6f5;
+      padding: 9px 10px;
+    }
+
+    .input-action {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .identity-demo {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 12px 0 0;
+    }
+
+    .identity-field {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdff;
+      padding: 10px;
+    }
+
+    .identity-field small {
+      display: block;
+      color: var(--muted);
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .protected {
+      display: inline-block;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      border-radius: 6px;
+      background: var(--panel-soft);
+      padding: 6px 8px;
+      font-weight: 850;
+    }
+
+    .is-blurred {
+      filter: blur(4px);
+      user-select: none;
+    }
+
+    .image-stage {
+      display: grid;
+      min-height: 230px;
+      margin-top: 14px;
+      overflow: hidden;
+      place-items: center;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      background: #f9fbfd;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .demo-poster {
+      display: grid;
+      width: min(100%, 440px);
+      min-height: 210px;
+      align-content: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(135deg, rgba(180, 35, 24, 0.08), rgba(15, 118, 110, 0.1)),
+        #ffffff;
+      padding: 22px;
+      color: var(--ink);
+    }
+
+    .demo-poster strong {
+      font-size: 1.35rem;
+    }
+
+    .demo-poster code {
+      border-radius: 6px;
+      background: rgba(23, 32, 42, 0.08);
+      padding: 5px 7px;
+    }
+
+    .notice {
+      border-radius: 8px;
+      background: rgba(29, 78, 216, 0.08);
+      color: var(--blue);
+      padding: 10px 12px;
+      font-weight: 800;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .footer {
+      border-top: 1px solid var(--line);
+      margin-top: 28px;
+      padding: 22px 0;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .footer p {
+      margin: 0;
+    }
+
+    .footer p + p {
+      margin-top: 8px;
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .home-grid,
+      .module-grid,
+      .section-heading,
+      .result-grid,
+      .flow-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .example-grid,
+      .identity-demo {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      h1 {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .header-inner,
+      .panel-heading,
+      .section-heading,
+      .button-row,
+      .actions {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .nav {
+        justify-content: flex-start;
+      }
+
+      .mode-pill,
+      .score-badge,
+      .button {
+        width: 100%;
+        max-width: none;
+      }
+
+      .example-grid,
+      .identity-demo,
+      .input-action {
+        grid-template-columns: 1fr;
+      }
+
+      textarea {
+        min-height: 180px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="shell header-inner">
+      <a class="brand" href="#inicio" aria-label="PhishingWall AI">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" role="img">
+            <path d="M32 6 52 14v16c0 13-8 24-20 29C20 54 12 43 12 30V14L32 6Z" fill="#fff"></path>
+            <path d="M20 22h24v7H20v-7Zm0 12h24v7H20v-7Z" fill="#0f766e"></path>
+            <path d="M30 25 41 49l-8-4-4 8-5-2 4-8-8-4 10-14Z" fill="#1d4ed8" stroke="#17202a" stroke-width="2" stroke-linejoin="round"></path>
+          </svg>
+        </span>
+        <span>
+          <strong>PhishingWall AI</strong>
+          <small>Demo local de análisis preventivo</small>
+        </span>
+      </a>
+
+      <nav class="nav" aria-label="Navegación principal">
+        <a href="#inicio">Inicio</a>
+        <a href="#analizador">Analizador</a>
+        <a href="#lana">LANA</a>
+        <a href="#aurelio">AURELIO</a>
+        <a href="#funciona">Cómo funciona</a>
+        <a href="#acerca">Acerca del proyecto</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="section hero" id="inicio" aria-labelledby="title">
+      <div class="hero-copy">
+        <p class="eyebrow">Herramienta educativa y preventiva</p>
+        <h1 id="title">PhishingWall AI</h1>
+        <p>
+          Demostración académica autónoma para revisar mensajes, enlaces, identificaciones e imágenes
+          con reglas locales ejecutadas dentro de este archivo.
+        </p>
+        <span class="mode-pill">Modo demostración local: no realiza consultas reales ni envía datos.</span>
+      </div>
+
+      <div class="home-grid" aria-label="Módulos principales">
+        <article class="feature-card">
+          <div>
+            <p class="eyebrow">Analizador PhishingWall</p>
+            <h3>Mensajes y enlaces</h3>
+            <p>Analiza mensajes, enlaces y posibles intentos de suplantación mediante reglas locales.</p>
+          </div>
+          <a class="button primary" href="#analizador">Probar analizador</a>
+        </article>
+
+        <article class="feature-card">
+          <div>
+            <p class="eyebrow">LANA</p>
+            <h3>Identidad protegida</h3>
+            <p>Asistente preventivo para validación estructural de cédulas y protección visual de información de identidad.</p>
+          </div>
+          <a class="button primary" href="#lana">Probar LANA</a>
+        </article>
+
+        <article class="feature-card">
+          <div>
+            <p class="eyebrow">AURELIO</p>
+            <h3>Imágenes sospechosas</h3>
+            <p>Asistente preventivo para revisar imágenes utilizadas en posibles fraudes, premios falsos o suplantaciones.</p>
+          </div>
+          <a class="button primary" href="#aurelio">Probar AURELIO</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="analizador" aria-labelledby="analyzer-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Analizador principal de phishing</p>
+          <h2 id="analyzer-title">Mensajes, enlaces y suplantación</h2>
+        </div>
+        <p>El análisis se ejecuta automáticamente al escribir, pegar o seleccionar un ejemplo.</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Reglas locales</p>
+            <h3>Contenido a evaluar</h3>
+          </div>
+          <output class="score-badge" id="scoreBadge">Sin análisis</output>
+        </div>
+
+        <label for="mensaje">Mensaje, correo o enlace</label>
+        <textarea id="mensaje" maxlength="5000" placeholder="Pega aquí un mensaje, correo o enlace sospechoso."></textarea>
+
+        <div class="actions">
+          <button class="button primary" type="button" id="analizarBtn">Analizar ahora</button>
+          <button class="button ghost" type="button" id="limpiarBtn">Limpiar</button>
+        </div>
+
+        <div class="results" id="resultado" aria-live="polite">
+          <p class="muted">Selecciona un ejemplo o pega un texto para ver el resultado.</p>
+        </div>
+      </div>
+
+      <div class="section-heading" style="margin-top: 22px;">
+        <div>
+          <p class="eyebrow">Ejemplos visibles</p>
+          <h3>Mensajes de prueba</h3>
+        </div>
+        <p>Los ejemplos son ficticios y educativos. Al seleccionar uno, se carga y analiza inmediatamente.</p>
+      </div>
+      <div class="example-grid" id="ejemplosMensajes"></div>
+    </section>
+
+    <section class="section" id="lana" aria-labelledby="lana-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">LANA</p>
+          <h2 id="lana-title">LANA — Protección y validación de identidad</h2>
+        </div>
+        <p>LANA es el módulo preventivo de PhishingWall AI destinado a verificar la estructura de identificaciones ecuatorianas y demostrar mecanismos de protección visual de datos.</p>
+      </div>
+
+      <div class="module-grid">
+        <article class="panel" aria-labelledby="cedula-title">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Validador local</p>
+              <h3 id="cedula-title">Cédula ecuatoriana</h3>
+            </div>
+            <span class="status-pill">Estructural</span>
+          </div>
+
+          <label for="cedulaInput">Número de cédula</label>
+          <div class="input-action">
+            <input id="cedulaInput" type="text" inputmode="numeric" maxlength="10" placeholder="10 dígitos">
+            <button class="button primary" type="button" id="validarCedulaBtn">Validar</button>
+          </div>
+          <div class="button-row">
+            <button class="button soft" type="button" data-cedula-ejemplo="0102030400">Cédula ficticia válida</button>
+            <button class="button soft" type="button" data-cedula-ejemplo="0102030401">Dígito incorrecto</button>
+            <button class="button soft" type="button" data-cedula-ejemplo="2502030409">Provincia inválida</button>
+            <button class="button ghost" type="button" id="limpiarCedulaBtn">Limpiar</button>
+          </div>
+
+          <div class="results" id="cedulaResultado" aria-live="polite">
+            <p class="muted">La validación revisa formato, provincia, tercer dígito y dígito verificador. No consulta registros oficiales.</p>
+          </div>
+        </article>
+
+        <article class="panel" aria-labelledby="privacy-title">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Protección visual</p>
+              <h3 id="privacy-title">Datos de demostración</h3>
+            </div>
+            <span class="status-pill">Datos ficticios</span>
+          </div>
+
+          <p class="muted">Esta herramienta demuestra desenfoque visual. No presenta una consulta real ni confirma identidad.</p>
+          <div class="identity-demo">
+            <div class="identity-field">
+              <small>Nombre</small>
+              <span class="protected is-blurred" data-identity-field="nombre">Usuario de Demostración</span>
+            </div>
+            <div class="identity-field">
+              <small>Cédula</small>
+              <span class="protected is-blurred" data-identity-field="cedula">0102030400</span>
+            </div>
+            <div class="identity-field">
+              <small>Provincia</small>
+              <span class="protected is-blurred" data-identity-field="provincia">Ejemplo</span>
+            </div>
+            <div class="identity-field">
+              <small>Estado</small>
+              <span class="protected is-blurred" data-identity-field="estado">Datos no reales</span>
+            </div>
+          </div>
+
+          <label for="codigoDemo" style="margin-top: 14px;">Código de demostración</label>
+          <div class="input-action">
+            <input id="codigoDemo" type="text" autocomplete="off" placeholder="DEMO2026">
+            <button class="button primary" type="button" id="mostrarIdentidadBtn">Mostrar</button>
+          </div>
+          <div class="button-row">
+            <button class="button ghost" type="button" id="ocultarIdentidadBtn">Volver a ocultar</button>
+          </div>
+          <p class="muted" id="estadoIdentidad">Ingresa DEMO2026 para revelar temporalmente los datos ficticios.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="aurelio" aria-labelledby="aurelio-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">AURELIO</p>
+          <h2 id="aurelio-title">Análisis preventivo de imágenes</h2>
+        </div>
+        <p>AURELIO revisa señales preventivas en nombres, formatos y contexto de imágenes. No realiza reconocimiento visual real ni lectura automática de texto.</p>
+      </div>
+
+      <div class="module-grid">
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Imagen local</p>
+              <h3>Archivo o ejemplo</h3>
+            </div>
+            <output class="score-badge" id="imagenBadge">Sin análisis</output>
+          </div>
+
+          <label for="imagenInput">Seleccionar imagen desde el equipo</label>
+          <input id="imagenInput" type="file" accept="image/*">
+          <div class="button-row">
+            <button class="button soft" type="button" data-imagen-ejemplo="premio">Imagen de premio falso</button>
+            <button class="button soft" type="button" data-imagen-ejemplo="qr">Código visual sospechoso</button>
+            <button class="button soft" type="button" data-imagen-ejemplo="legitima">Imagen legítima</button>
+            <button class="button ghost" type="button" id="limpiarImagenBtn">Limpiar</button>
+          </div>
+
+          <div class="image-stage" id="imagenVista">
+            <span>Selecciona una imagen o ejemplo para ver la vista de demostración.</span>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Resultado preventivo</p>
+              <h3>Validaciones visibles</h3>
+            </div>
+            <span class="status-pill">Modo local</span>
+          </div>
+          <div class="results" id="imagenResultado" aria-live="polite">
+            <p class="muted">El análisis de imagen es preventivo y se limita a reglas locales de demostración.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="funciona" aria-labelledby="funciona-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Cómo funciona</p>
+          <h2 id="funciona-title">Reglas locales y resultados orientativos</h2>
+        </div>
+        <p>Todos los módulos se ejecutan dentro de este archivo. Los resultados son demostrativos y no sustituyen verificación humana ni herramientas profesionales.</p>
+      </div>
+
+      <div class="flow-grid">
+        <article class="module-card">
+          <h3>1. Entrada</h3>
+          <p>El usuario escribe, pega o selecciona un ejemplo de mensaje, cédula o imagen.</p>
+        </article>
+        <article class="module-card">
+          <h3>2. Validación</h3>
+          <p>JavaScript local revisa patrones de riesgo, estructura documental o metadatos preventivos.</p>
+        </article>
+        <article class="module-card">
+          <h3>3. Puntuación</h3>
+          <p>Las señales detectadas se convierten en una puntuación de 0 a 100 y un nivel bajo, medio o alto.</p>
+        </article>
+        <article class="module-card">
+          <h3>4. Recomendación</h3>
+          <p>La interfaz explica por qué hay riesgo y sugiere pasos seguros sin afirmar certeza absoluta.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="acerca" aria-labelledby="acerca-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Acerca del proyecto</p>
+          <h2 id="acerca-title">PhishingWall AI</h2>
+        </div>
+        <p>Proyecto académico, educativo y preventivo enfocado en reconocer señales comunes de fraude digital.</p>
+      </div>
+
+      <div class="module-grid">
+        <article class="module-card">
+          <h3>Alcance de la demo</h3>
+          <p>Esta versión muestra el flujo completo de los módulos principales con datos ficticios y reglas locales. No verifica identidades reales ni determina si una amenaza existe en internet.</p>
+        </article>
+        <article class="module-card">
+          <h3>Autoría</h3>
+          <p>La autoría, desarrollo principal y titularidad del proyecto corresponden a Mathias Javier Vargas Caicedo. La información completa de representación y participación académica se conserva en la documentación del proyecto.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="shell footer">
+    <p>© 2026 PhishingWall AI — Creado y desarrollado por Mathias Javier Vargas Caicedo, titular del proyecto. Todos los derechos reservados.</p>
+    <p>PhishingWall AI es una herramienta educativa y preventiva. Sus resultados son orientativos y no garantizan la detección de todas las amenazas.</p>
+  </footer>
+
+  <script>
+    "use strict";
+
+    const mensaje = document.getElementById("mensaje");
+    const resultado = document.getElementById("resultado");
+    const scoreBadge = document.getElementById("scoreBadge");
+    const ejemplosMensajes = document.getElementById("ejemplosMensajes");
+    const analizarBtn = document.getElementById("analizarBtn");
+    const limpiarBtn = document.getElementById("limpiarBtn");
+    const cedulaInput = document.getElementById("cedulaInput");
+    const cedulaResultado = document.getElementById("cedulaResultado");
+    const validarCedulaBtn = document.getElementById("validarCedulaBtn");
+    const limpiarCedulaBtn = document.getElementById("limpiarCedulaBtn");
+    const codigoDemo = document.getElementById("codigoDemo");
+    const mostrarIdentidadBtn = document.getElementById("mostrarIdentidadBtn");
+    const ocultarIdentidadBtn = document.getElementById("ocultarIdentidadBtn");
+    const estadoIdentidad = document.getElementById("estadoIdentidad");
+    const imagenInput = document.getElementById("imagenInput");
+    const imagenVista = document.getElementById("imagenVista");
+    const imagenResultado = document.getElementById("imagenResultado");
+    const imagenBadge = document.getElementById("imagenBadge");
+    const limpiarImagenBtn = document.getElementById("limpiarImagenBtn");
+
+    const ejemplos = [
+      {
+        id: "paypal",
+        titulo: "PayPal ficticio",
+        resumen: "Cuenta limitada, datos y dominio no oficial.",
+        texto: "Su cuenta de PayPal fue limitada. Confirme sus datos inmediatamente para evitar la suspension: https://paypal-verificacion-urgente.example/iniciar-sesion"
+      },
+      {
+        id: "pichincha",
+        titulo: "Banco Pichincha ficticio",
+        resumen: "Presión de tiempo y supuesta validación.",
+        texto: "BANCO PICHINCHA: Detectamos un acceso no autorizado. Actualice su informacion en las proximas 2 horas: https://banco-pichincha-seguridad.example/validar"
+      },
+      {
+        id: "whatsapp",
+        titulo: "WhatsApp sospechoso",
+        resumen: "Familiar falso, dinero y aislamiento.",
+        texto: "Hola, soy tu familiar. Cambie de numero y necesito que me transfieras dinero urgentemente. No puedo llamarte en este momento. No le digas a nadie hasta que lo resolvamos."
+      },
+      {
+        id: "premio",
+        titulo: "Premio falso",
+        resumen: "Premio inesperado y datos de tarjeta.",
+        texto: "FELICIDADES!!! Ganaste un telefono. Paga unicamente $2 para recibir tu premio. Ingresa los datos de tu tarjeta aqui: https://premio-exclusivo.example/reclamar"
+      },
+      {
+        id: "legitimo",
+        titulo: "Mensaje legítimo",
+        resumen: "Comparación de bajo riesgo.",
+        texto: "Recordatorio: la reunion del proyecto sera manana a las 10:00. No necesitas ingresar datos ni abrir enlaces."
+      }
+    ];
+
+    const reglas = [
+      { nombre: "Urgencia o presión de tiempo", peso: 15, patron: /\b(urgente|urgentemente|inmediatamente|proximas?\s+\d+\s+horas?|ultim[ao]\s+oportunidad|evitar la suspension|antes de medianoche|ahora mismo)\b/i, explicacion: "El mensaje intenta acelerar la decisión para que no verifiques con calma." },
+      { nombre: "Amenaza sobre cuenta o seguridad", peso: 15, patron: /\b(cuenta limitada|fue limitada|cuenta bloqueada|cuenta suspendida|suspension|acceso no autorizado|detectamos un acceso|bloqueo preventivo)\b/i, explicacion: "Usa una amenaza para provocar miedo o reacción inmediata." },
+      { nombre: "Solicitud de contraseñas", peso: 18, patron: /\b(contrasena|contraseña|clave|password)\b/i, explicacion: "Solicita credenciales que no deben compartirse desde mensajes recibidos." },
+      { nombre: "Solicitud de códigos", peso: 16, patron: /\b(codigo|código|otp|pin|codigo temporal|código temporal|codigo de seguridad|código de seguridad)\b/i, explicacion: "Pide códigos que podrían permitir acceso no autorizado." },
+      { nombre: "Solicitud de dinero", peso: 16, patron: /\b(transfieras dinero|transferencia|paga|pago|deposito|depósito|recibir tu premio|enviar dinero)\b/i, explicacion: "Solicita dinero con una excusa urgente o poco verificable." },
+      { nombre: "Información bancaria", peso: 18, patron: /\b(cvv|tarjeta|datos de tu tarjeta|bancaria|bancario|cuenta bancaria|numero de tarjeta|número de tarjeta)\b/i, explicacion: "Intenta obtener datos financieros sensibles." },
+      { nombre: "Premio inesperado", peso: 13, patron: /\b(felicidades|ganaste|premio|telefono|teléfono|reclamar|regalo|exclusivo)\b/i, explicacion: "Los premios inesperados suelen usarse para obtener pagos o datos." },
+      { nombre: "Suplantación de familiares", peso: 16, patron: /\b(soy tu familiar|cambie de numero|cambié de número|nuevo numero|nuevo número|no puedo llamarte|no puedo llamar)\b/i, explicacion: "Intenta hacerse pasar por una persona cercana y evitar verificación directa." },
+      { nombre: "Intento de aislamiento", peso: 12, patron: /\b(no puedo llamarte|no puedo llamar|solo por aqui|solo por aquí|no contestes llamadas|no avises)\b/i, explicacion: "Busca limitar otros canales de verificación." },
+      { nombre: "Mantener en secreto", peso: 12, patron: /\b(no le digas a nadie|mant[eé]n.*secreto|guarda el secreto|no avises|que nadie se entere)\b/i, explicacion: "Pedir secreto es una señal común para impedir que la víctima consulte a otra persona." },
+      { nombre: "Enlace incluido", peso: 7, patron: /(?:https?:\/\/|www\.|[a-z0-9-]+\.)[a-z0-9.-]+\.[a-z]{2,}(?:\/[^\s]*)?/i, explicacion: "Incluye un enlace que debe revisarse antes de abrirse." },
+      { nombre: "Enlace acortado", peso: 17, patron: /\b(bit\.ly|tinyurl\.com|t\.co|cutt\.ly|goo\.gl|is\.gd|ow\.ly)\b/i, explicacion: "Un acortador puede ocultar el destino real." },
+      { nombre: "Dominio sospechoso o no oficial", peso: 15, patron: /\b[a-z0-9-]*(verificacion|seguridad|premio|validar|soporte|login|reclamar)[a-z0-9-]*\.[a-z]{2,}\b/i, explicacion: "El dominio usa palabras diseñadas para parecer oficial o urgente." },
+      { nombre: "Dirección IP como enlace", peso: 18, patron: /https?:\/\/\d{1,3}(?:\.\d{1,3}){3}/i, explicacion: "Los enlaces directos a direcciones IP pueden ocultar el origen real." },
+      { nombre: "Enlace sin cifrado HTTPS", peso: 10, patron: /http:\/\//i, explicacion: "Un enlace sin HTTPS aumenta el riesgo de exposición o manipulación." }
+    ];
+
+    const marcas = [
+      { nombre: "PayPal", alias: /\bpaypal\b/i, dominiosOficiales: ["paypal.com"] },
+      { nombre: "Banco Pichincha", alias: /\b(banco pichincha|pichincha)\b/i, dominiosOficiales: ["pichincha.com"] },
+      { nombre: "WhatsApp", alias: /\bwhatsapp\b/i, dominiosOficiales: ["whatsapp.com"] }
+    ];
+
+    const ejemplosImagen = {
+      premio: {
+        titulo: "Premio falso",
+        nombre: "premio-urgente-reclamar.png",
+        tipo: "image/png",
+        tamano: 2400000,
+        textoVista: "GANASTE UN PREMIO",
+        subtitulo: "Paga $2 para reclamarlo",
+        pistas: ["premio inesperado", "pago pequeño", "urgencia"]
+      },
+      qr: {
+        titulo: "Código visual sospechoso",
+        nombre: "qr-seguridad-banco-validar.jpg",
+        tipo: "image/jpeg",
+        tamano: 1800000,
+        textoVista: "ESCANEA PARA VALIDAR",
+        subtitulo: "Supuesto acceso de seguridad",
+        pistas: ["código visual", "entidad financiera", "validación"]
+      },
+      legitima: {
+        titulo: "Imagen legítima",
+        nombre: "agenda-proyecto-clase.png",
+        tipo: "image/png",
+        tamano: 420000,
+        textoVista: "AGENDA DEL PROYECTO",
+        subtitulo: "Sin pagos ni datos sensibles",
+        pistas: []
+      }
+    };
+
+    iniciar();
+
+    function iniciar() {
+      renderizarEjemplosMensajes();
+
+      analizarBtn.addEventListener("click", () => analizarContenido(mensaje.value));
+      limpiarBtn.addEventListener("click", limpiarMensaje);
+      mensaje.addEventListener("input", () => analizarContenido(mensaje.value));
+      mensaje.addEventListener("paste", () => {
+        window.setTimeout(() => analizarContenido(mensaje.value), 0);
+      });
+
+      validarCedulaBtn.addEventListener("click", analizarCedulaActual);
+      cedulaInput.addEventListener("input", () => {
+        cedulaInput.value = cedulaInput.value.replace(/\D/g, "").slice(0, 10);
+        if (cedulaInput.value.length === 10) {
+          analizarCedulaActual();
+        }
+      });
+      limpiarCedulaBtn.addEventListener("click", limpiarCedula);
+      document.querySelectorAll("[data-cedula-ejemplo]").forEach((boton) => {
+        boton.addEventListener("click", () => {
+          cedulaInput.value = boton.dataset.cedulaEjemplo;
+          analizarCedulaActual();
+        });
+      });
+
+      mostrarIdentidadBtn.addEventListener("click", mostrarIdentidadDemo);
+      ocultarIdentidadBtn.addEventListener("click", ocultarIdentidadDemo);
+
+      imagenInput.addEventListener("change", analizarImagenSeleccionada);
+      limpiarImagenBtn.addEventListener("click", limpiarImagen);
+      document.querySelectorAll("[data-imagen-ejemplo]").forEach((boton) => {
+        boton.addEventListener("click", () => cargarEjemploImagen(boton.dataset.imagenEjemplo));
+      });
+    }
+
+    function renderizarEjemplosMensajes() {
+      ejemplosMensajes.textContent = "";
+      ejemplos.forEach((ejemplo) => {
+        const boton = document.createElement("button");
+        boton.className = "example-card";
+        boton.type = "button";
+        boton.dataset.exampleId = ejemplo.id;
+
+        const titulo = document.createElement("strong");
+        titulo.textContent = ejemplo.titulo;
+
+        const resumen = document.createElement("span");
+        resumen.textContent = ejemplo.resumen;
+
+        boton.append(titulo, resumen);
+        boton.addEventListener("click", () => {
+          mensaje.value = ejemplo.texto;
+          analizarContenido(ejemplo.texto);
+          document.getElementById("analizador").scrollIntoView({ behavior: "smooth", block: "start" });
+          mensaje.focus({ preventScroll: true });
+        });
+
+        ejemplosMensajes.appendChild(boton);
+      });
+    }
+
+    function analizarContenido(textoOriginal) {
+      const texto = normalizarEntrada(textoOriginal);
+
+      if (!texto) {
+        scoreBadge.textContent = "Sin análisis";
+        scoreBadge.className = "score-badge";
+        resultado.textContent = "";
+        resultado.appendChild(parrafo("Selecciona un ejemplo o pega un texto para ver el resultado.", "muted"));
+        return;
+      }
+
+      const validaciones = [];
+      const explicaciones = [];
+      let puntuacion = 0;
+
+      reglas.forEach((regla) => {
+        if (regla.patron.test(texto)) {
+          agregarSenal(validaciones, regla.nombre);
+          agregarSenal(explicaciones, regla.explicacion);
+          puntuacion += regla.peso;
+        }
+      });
+
+      const enlaces = extraerEnlaces(texto);
+      detectarSuplantacion(texto, enlaces).forEach((senal) => {
+        agregarSenal(validaciones, senal.validacion);
+        agregarSenal(explicaciones, senal.explicacion);
+        puntuacion += senal.peso;
+      });
+
+      if (tieneExcesoMayusculas(texto)) {
+        agregarSenal(validaciones, "Exceso de mayúsculas");
+        agregarSenal(explicaciones, "El uso elevado de mayúsculas puede reforzar presión o alarma.");
+        puntuacion += 8;
+      }
+
+      if (cuentaExclamaciones(texto) >= 3) {
+        agregarSenal(validaciones, "Uso repetido de signos de exclamación");
+        agregarSenal(explicaciones, "El exceso de exclamaciones puede reforzar urgencia artificial.");
+        puntuacion += 6;
+      }
+
+      if (validaciones.length === 0) {
+        validaciones.push("Sin señales fuertes de phishing en las reglas locales");
+        explicaciones.push("No se detectaron amenazas, solicitudes de credenciales, pagos ni enlaces sospechosos.");
+      }
+
+      puntuacion = Math.min(100, puntuacion);
+      const riesgo = clasificarRiesgo(puntuacion);
+      const recomendaciones = crearRecomendaciones(riesgo.nivel, enlaces.length);
+
+      renderizarResultadoMensaje({
+        riesgo,
+        puntuacion,
+        enlaces,
+        validaciones,
+        explicaciones,
+        recomendaciones
+      });
+    }
+
+    function renderizarResultadoMensaje(datos) {
+      resultado.textContent = "";
+      resultado.appendChild(tarjetaRiesgo(datos.riesgo, datos.puntuacion, "Modo demostración local: análisis de mensajes mediante reglas internas."));
+
+      if (datos.enlaces.length > 0) {
+        resultado.appendChild(parrafo(`Enlaces detectados: ${datos.enlaces.join(", ")}`));
+      }
+
+      const grid = document.createElement("div");
+      grid.className = "result-grid";
+      grid.append(
+        bloqueResultado("Validaciones detectadas", datos.validaciones),
+        bloqueResultado("Por qué podría ser peligroso", datos.explicaciones),
+        bloqueResultado("Recomendaciones", datos.recomendaciones)
+      );
+      resultado.appendChild(grid);
+
+      scoreBadge.textContent = `${datos.riesgo.nivel} (${datos.puntuacion}/100)`;
+      scoreBadge.className = `score-badge level-${datos.riesgo.clase}`;
+    }
+
+    function detectarSuplantacion(texto, enlaces) {
+      const senales = [];
+
+      marcas.forEach((marca) => {
+        if (!marca.alias.test(texto)) {
+          return;
+        }
+
+        const tieneEnlaceNoOficial = enlaces.some((enlace) => {
+          const host = obtenerHost(enlace);
+          return host && !marca.dominiosOficiales.some((oficial) => host === oficial || host.endsWith(`.${oficial}`));
+        });
+
+        if (tieneEnlaceNoOficial || enlaces.length === 0) {
+          senales.push({
+            validacion: `Posible suplantación de ${marca.nombre}`,
+            explicacion: `El mensaje menciona ${marca.nombre}, pero no permite confirmar identidad por un canal oficial.`,
+            peso: tieneEnlaceNoOficial ? 22 : 12
+          });
+        }
+      });
+
+      return senales;
+    }
+
+    function crearRecomendaciones(nivel, cantidadEnlaces) {
+      const base = [
+        "Verifica el remitente por un canal oficial antes de responder.",
+        "No compartas contraseñas, códigos, datos bancarios ni información personal.",
+        "Recuerda que este resultado es educativo y no garantiza seguridad absoluta."
+      ];
+
+      if (nivel === "Alto") {
+        return [
+          "No abras el enlace ni descargues archivos del mensaje.",
+          "Reporta el intento a la entidad suplantada o al canal interno de seguridad.",
+          ...base
+        ];
+      }
+
+      if (nivel === "Medio") {
+        return [
+          "Revisa el dominio completo antes de hacer clic.",
+          "Confirma la solicitud con la persona o institución por otro medio.",
+          ...base
+        ];
+      }
+
+      if (cantidadEnlaces > 0) {
+        return [
+          "Aunque el riesgo es bajo, revisa el dominio antes de abrir enlaces.",
+          ...base
+        ];
+      }
+
+      return [
+        "No se observan señales fuertes, pero conserva la precaución.",
+        ...base
+      ];
+    }
+
+    function validarCedulaEcuatoriana(cedula) {
+      const valor = String(cedula || "").trim();
+      const validaciones = [];
+      const errores = [];
+
+      if (!/^\d+$/.test(valor)) {
+        errores.push("Debe contener solamente números.");
+      } else {
+        validaciones.push("Contiene solamente números.");
+      }
+
+      if (valor.length !== 10) {
+        errores.push("Debe tener exactamente 10 dígitos.");
+      } else {
+        validaciones.push("Tiene exactamente 10 dígitos.");
+      }
+
+      if (!/^\d{10}$/.test(valor)) {
+        return {
+          valida: false,
+          nivel: "No válida",
+          puntuacion: 20,
+          validaciones,
+          errores,
+          explicacion: "No se puede calcular el dígito verificador hasta cumplir el formato de 10 dígitos."
+        };
+      }
+
+      const provincia = Number(valor.slice(0, 2));
+      if (provincia < 1 || provincia > 24) {
+        errores.push("El código provincial debe estar entre 01 y 24.");
+      } else {
+        validaciones.push(`Código provincial ${valor.slice(0, 2)} dentro del rango 01-24.`);
+      }
+
+      const tercerDigito = Number(valor[2]);
+      if (tercerDigito > 5) {
+        errores.push("El tercer dígito debe estar entre 0 y 5 para cédulas de persona natural.");
+      } else {
+        validaciones.push("El tercer dígito corresponde al tipo de documento validado.");
+      }
+
+      if (/^(\d)\1+$/.test(valor)) {
+        errores.push("No debe estar formada por un mismo dígito repetido.");
+      }
+
+      const coeficientes = [2, 1, 2, 1, 2, 1, 2, 1, 2];
+      const suma = coeficientes.reduce((total, coeficiente, indice) => {
+        const producto = Number(valor[indice]) * coeficiente;
+        return total + (producto >= 10 ? producto - 9 : producto);
+      }, 0);
+      const digitoCalculado = (10 - (suma % 10)) % 10;
+      const digitoIngresado = Number(valor[9]);
+
+      if (digitoCalculado !== digitoIngresado) {
+        errores.push(`El dígito verificador esperado es ${digitoCalculado}, pero se ingresó ${digitoIngresado}.`);
+      } else {
+        validaciones.push("El último dígito coincide con el algoritmo de módulo 10.");
+      }
+
+      const valida = errores.length === 0;
+      return {
+        valida,
+        nivel: valida ? "Válida estructuralmente" : "No válida",
+        puntuacion: valida ? 100 : 45,
+        validaciones,
+        errores,
+        explicacion: valida
+          ? "La cédula cumple la estructura revisada localmente. Esto no confirma identidad real."
+          : "La cédula no supera todas las validaciones estructurales locales."
+      };
+    }
+
+    function analizarCedulaActual() {
+      const datos = validarCedulaEcuatoriana(cedulaInput.value);
+      cedulaResultado.textContent = "";
+      const riesgo = {
+        nivel: datos.nivel,
+        clase: datos.valida ? "low" : "medium",
+        explicacion: datos.explicacion
+      };
+      cedulaResultado.appendChild(tarjetaRiesgo(riesgo, datos.puntuacion, "Modo demostración local: validación estructural sin consulta de identidad."));
+
+      const grid = document.createElement("div");
+      grid.className = "result-grid";
+      grid.append(
+        bloqueResultado("Validaciones correctas", datos.validaciones.length ? datos.validaciones : ["Ninguna validación superada todavía."]),
+        bloqueResultado("Observaciones", datos.errores.length ? datos.errores : ["No se encontraron errores estructurales."]),
+        bloqueResultado("Recomendaciones", [
+          "No uses cédulas reales en demostraciones públicas.",
+          "No presentes este resultado como una consulta oficial.",
+          "Utiliza esta revisión solo como apoyo estructural."
+        ])
+      );
+      cedulaResultado.appendChild(grid);
+    }
+
+    function mostrarIdentidadDemo() {
+      if (codigoDemo.value.trim().toUpperCase() !== "DEMO2026") {
+        estadoIdentidad.textContent = "Código incorrecto. Usa DEMO2026 para esta demostración local.";
+        ocultarIdentidadDemo();
+        return;
+      }
+
+      document.querySelectorAll("[data-identity-field]").forEach((campo) => {
+        campo.classList.remove("is-blurred");
+      });
+      estadoIdentidad.textContent = "Datos ficticios visibles temporalmente. No pertenecen a una persona real.";
+    }
+
+    function ocultarIdentidadDemo() {
+      document.querySelectorAll("[data-identity-field]").forEach((campo) => {
+        campo.classList.add("is-blurred");
+      });
+      estadoIdentidad.textContent = "Datos ficticios ocultos.";
+    }
+
+    function analizarImagenSeleccionada() {
+      const archivo = imagenInput.files && imagenInput.files[0];
+      if (!archivo) {
+        return;
+      }
+
+      const datos = analizarImagenPreventiva({
+        titulo: "Imagen seleccionada",
+        nombre: archivo.name,
+        tipo: archivo.type || "tipo no identificado",
+        tamano: archivo.size,
+        pistas: []
+      });
+      renderizarVistaImagen("Archivo local seleccionado", archivo.name, "No se muestra vista previa para evitar procesar contenido visual real.");
+      renderizarResultadoImagen(datos);
+    }
+
+    function cargarEjemploImagen(id) {
+      const ejemplo = ejemplosImagen[id];
+      if (!ejemplo) {
+        return;
+      }
+
+      imagenInput.value = "";
+      const datos = analizarImagenPreventiva(ejemplo);
+      renderizarVistaImagen(ejemplo.textoVista, ejemplo.nombre, ejemplo.subtitulo);
+      renderizarResultadoImagen(datos);
+    }
+
+    function analizarImagenPreventiva(imagen) {
+      const validaciones = [];
+      const explicaciones = [];
+      let puntuacion = 0;
+      const nombre = String(imagen.nombre || "").toLowerCase();
+      const tipo = String(imagen.tipo || "").toLowerCase();
+      const pistas = imagen.pistas || [];
+
+      if (!tipo.startsWith("image/")) {
+        validaciones.push("El archivo no declara un formato de imagen común.");
+        explicaciones.push("Un archivo con formato inesperado puede no ser seguro para abrir.");
+        puntuacion += 25;
+      } else {
+        validaciones.push("Formato declarado como imagen.");
+      }
+
+      if (/\b(premio|urgente|reclamar|bono|regalo|ganaste)\b/.test(nombre) || pistas.includes("premio inesperado")) {
+        validaciones.push("Nombre o contexto asociado a premio inesperado.");
+        explicaciones.push("Las imágenes de premios falsos suelen acompañar solicitudes de pago o datos.");
+        puntuacion += 24;
+      }
+
+      if (/\b(qr|validar|seguridad|banco|cuenta)\b/.test(nombre) || pistas.includes("código visual")) {
+        validaciones.push("Posible código visual o validación bancaria.");
+        explicaciones.push("Escanear códigos de origen no verificado puede dirigir a páginas fraudulentas.");
+        puntuacion += 22;
+      }
+
+      if (pistas.includes("validación")) {
+        validaciones.push("Contexto de validación urgente en imagen.");
+        explicaciones.push("Las imágenes que piden validar cuentas deben confirmarse por canales oficiales.");
+        puntuacion += 10;
+      }
+
+      if (/\b(pago|tarjeta|cvv|deposito|depósito)\b/.test(nombre) || pistas.includes("pago pequeño")) {
+        validaciones.push("Referencia a pago o datos financieros.");
+        explicaciones.push("La combinación de imagen y pago pequeño es frecuente en fraudes de premio.");
+        puntuacion += 18;
+      }
+
+      if (imagen.tamano > 5 * 1024 * 1024) {
+        validaciones.push("Archivo grande para una imagen recibida por mensaje.");
+        explicaciones.push("Un tamaño inusual no confirma fraude, pero amerita revisión.");
+        puntuacion += 10;
+      }
+
+      if (/\.svg$/i.test(nombre)) {
+        validaciones.push("Formato SVG detectado.");
+        explicaciones.push("SVG puede contener instrucciones embebidas si se manipula fuera de un entorno seguro.");
+        puntuacion += 10;
+      }
+
+      if (validaciones.length === 1 && validaciones[0] === "Formato declarado como imagen.") {
+        explicaciones.push("No se encontraron señales fuertes en nombre, formato o contexto del ejemplo.");
+      }
+
+      puntuacion = Math.min(100, puntuacion);
+      const riesgo = clasificarRiesgo(puntuacion);
+      return {
+        riesgo,
+        puntuacion,
+        validaciones,
+        explicaciones,
+        recomendaciones: [
+          "No escanees códigos visuales recibidos por mensajes no verificados.",
+          "No ingreses datos bancarios desde enlaces o imágenes de premios.",
+          "Confirma el origen de la imagen por un canal oficial."
+        ]
+      };
+    }
+
+    function renderizarResultadoImagen(datos) {
+      imagenResultado.textContent = "";
+      imagenResultado.appendChild(tarjetaRiesgo(datos.riesgo, datos.puntuacion, "Modo demostración local: AURELIO no realiza reconocimiento visual real."));
+
+      const grid = document.createElement("div");
+      grid.className = "result-grid";
+      grid.append(
+        bloqueResultado("Validaciones detectadas", datos.validaciones),
+        bloqueResultado("Explicación", datos.explicaciones),
+        bloqueResultado("Recomendaciones", datos.recomendaciones)
+      );
+      imagenResultado.appendChild(grid);
+
+      imagenBadge.textContent = `${datos.riesgo.nivel} (${datos.puntuacion}/100)`;
+      imagenBadge.className = `score-badge level-${datos.riesgo.clase}`;
+    }
+
+    function renderizarVistaImagen(titulo, nombre, subtitulo) {
+      imagenVista.textContent = "";
+      const poster = document.createElement("div");
+      poster.className = "demo-poster";
+      const strong = document.createElement("strong");
+      strong.textContent = titulo;
+      const code = document.createElement("code");
+      code.textContent = nombre;
+      const p = parrafo(subtitulo, "muted");
+      poster.append(strong, code, p);
+      imagenVista.appendChild(poster);
+    }
+
+    function limpiarMensaje() {
+      mensaje.value = "";
+      analizarContenido("");
+      mensaje.focus();
+    }
+
+    function limpiarCedula() {
+      cedulaInput.value = "";
+      cedulaResultado.textContent = "";
+      cedulaResultado.appendChild(parrafo("La validación revisa formato, provincia, tercer dígito y dígito verificador. No consulta registros oficiales.", "muted"));
+    }
+
+    function limpiarImagen() {
+      imagenInput.value = "";
+      imagenBadge.textContent = "Sin análisis";
+      imagenBadge.className = "score-badge";
+      imagenVista.textContent = "";
+      imagenVista.appendChild(parrafo("Selecciona una imagen o ejemplo para ver la vista de demostración.", "muted"));
+      imagenResultado.textContent = "";
+      imagenResultado.appendChild(parrafo("El análisis de imagen es preventivo y se limita a reglas locales de demostración.", "muted"));
+    }
+
+    function tarjetaRiesgo(riesgo, puntuacion, nota) {
+      const tarjeta = document.createElement("section");
+      tarjeta.className = `risk-card risk-${riesgo.clase}`;
+
+      const titulo = document.createElement("h3");
+      titulo.className = `level-${riesgo.clase}`;
+      titulo.textContent = `Nivel: ${riesgo.nivel}`;
+
+      const barra = document.createElement("div");
+      barra.className = "risk-meter";
+      barra.setAttribute("role", "progressbar");
+      barra.setAttribute("aria-valuemin", "0");
+      barra.setAttribute("aria-valuemax", "100");
+      barra.setAttribute("aria-valuenow", String(puntuacion));
+
+      const progreso = document.createElement("span");
+      progreso.style.width = `${puntuacion}%`;
+      barra.appendChild(progreso);
+
+      tarjeta.append(
+        titulo,
+        barra,
+        parrafo(`Puntuación: ${puntuacion}/100.`),
+        parrafo(riesgo.explicacion),
+        parrafo(nota, "notice")
+      );
+
+      return tarjeta;
+    }
+
+    function bloqueResultado(titulo, items) {
+      const bloque = document.createElement("section");
+      bloque.className = "result-block";
+
+      const encabezado = document.createElement("h4");
+      encabezado.textContent = titulo;
+
+      const lista = document.createElement("ul");
+      lista.className = "list";
+
+      items.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        lista.appendChild(li);
+      });
+
+      bloque.append(encabezado, lista);
+      return bloque;
+    }
+
+    function clasificarRiesgo(puntuacion) {
+      if (puntuacion >= 70) {
+        return {
+          nivel: "Alto",
+          clase: "high",
+          explicacion: "Se combinaron varias señales preventivas relevantes."
+        };
+      }
+
+      if (puntuacion >= 30) {
+        return {
+          nivel: "Medio",
+          clase: "medium",
+          explicacion: "Hay señales que requieren verificación antes de confiar."
+        };
+      }
+
+      return {
+        nivel: "Bajo",
+        clase: "low",
+        explicacion: "No se detectaron señales fuertes en las reglas locales."
+      };
+    }
+
+    function extraerEnlaces(texto) {
+      const encontrados = texto.match(/(?:https?:\/\/|www\.)[^\s<>"']+|(?:[a-z0-9-]+\.)+[a-z]{2,}(?:\/[^\s<>"']*)?/gi) || [];
+      return [...new Set(encontrados.map((enlace) => enlace.replace(/[),.;!?]+$/g, "")))];
+    }
+
+    function obtenerHost(enlace) {
+      const limpio = enlace.replace(/[),.;!?]+$/g, "");
+      const sinProtocolo = limpio.replace(/^https?:\/\//i, "").replace(/^www\./i, "");
+      const host = sinProtocolo.split("/")[0].toLowerCase();
+      return host || "";
+    }
+
+    function normalizarEntrada(valor) {
+      return String(valor || "")
+        .replace(/\u0000/g, "")
+        .trim()
+        .slice(0, 5000);
+    }
+
+    function cuentaExclamaciones(texto) {
+      return (texto.match(/!/g) || []).length;
+    }
+
+    function tieneExcesoMayusculas(texto) {
+      const letras = texto.replace(/[^a-záéíóúñA-ZÁÉÍÓÚÑ]/g, "");
+      if (letras.length < 12) {
+        return false;
+      }
+      const mayusculas = letras.replace(/[^A-ZÁÉÍÓÚÑ]/g, "");
+      return mayusculas.length / letras.length > 0.55;
+    }
+
+    function agregarSenal(lista, texto) {
+      if (!lista.includes(texto)) {
+        lista.push(texto);
+      }
+    }
+
+    function parrafo(texto, clase) {
+      const p = document.createElement("p");
+      p.textContent = texto;
+      if (clase) {
+        p.className = clase;
+      }
+      return p;
+    }
+  </script>
+</body>
+</html>

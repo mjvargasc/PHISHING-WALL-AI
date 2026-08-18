@@ -1,0 +1,21 @@
+{
+  "name": "phishingwall-ai",
+  "version": "1.0.0",
+  "description": "Herramienta educativa y preventiva para detectar senales comunes de phishing.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/dev-server.js",
+    "test": "node tests/smoke.test.js",
+    "lint": "node tests/static-checks.js",
+    "check": "npm run lint && npm test"
+  },
+  "keywords": [
+    "phishing",
+    "seguridad",
+    "educacion",
+    "ecuador"
+  ],
+  "author": "Mathias Javier Vargas Caicedo",
+  "license": "UNLICENSED"
+}
