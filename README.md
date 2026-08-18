@@ -1,6 +1,7 @@
 # PhishingWall AI
 
-![Logo de PhishingWall AI](assets/logos/phishingwall-ai.svg)
+<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/81a39141-160d-49c9-bdfc-e4c639125421" />
+
 
 PhishingWall AI es una plataforma educativa y preventiva enfocada en detectar senales comunes de phishing en mensajes, enlaces, cedulas ecuatorianas e imagenes sospechosas. Esta version funciona como aplicacion web estatica y no envia los datos del usuario a servicios externos.
 
@@ -30,9 +31,8 @@ Los intentos de phishing suelen usar urgencia, enlaces acortados, dominios dudos
 
 ## Capturas
 
-![Vista de escritorio](assets/screenshots/desktop-home.png)
+<img width="1605" height="595" alt="image" src="https://github.com/user-attachments/assets/4842daa9-b1e8-41fa-ac16-7b4651adb5d3" />
 
-![Vista movil](assets/screenshots/mobile-home.png)
 
 Las capturas fueron generadas durante la verificacion local del proyecto.
 
